@@ -39,7 +39,7 @@ func mountShare(s *share.Share, password *string) (string, error) {
 		return "", tui.ErrPasswordRequired
 	default:
 		pw, err = keychain.Get(s.KeychainAccount)
-		if errors.Is(err, keychain.ErrNotFound) {
+		if errors.Is(err, keychain.ErrNotFound) || errors.Is(err, keychain.ErrUnavailable) {
 			return "", tui.ErrPasswordRequired
 		}
 		if err != nil {
@@ -58,7 +58,9 @@ func mountShare(s *share.Share, password *string) (string, error) {
 
 	clearAuthFailed(s)
 	if password != nil && pw != "" && s.KeychainAccount != "" {
-		if err := keychain.Set(s.KeychainAccount, s.URL(), pw); err != nil {
+		if err := keychain.Set(s.KeychainAccount, s.URL(), pw); errors.Is(err, keychain.ErrUnavailable) {
+			warn("Connected, but the password could not be saved: %v.\n  %s", err, keychainUnavailableHint())
+		} else if err != nil {
 			warn("Connected, but the password could not be saved: %v", err)
 		}
 	}

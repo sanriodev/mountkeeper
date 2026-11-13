@@ -32,6 +32,8 @@ Run "mountkeeper connect" without arguments for the interactive manager.`,
 		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
+
+		PersistentPreRun: warnSessionMismatch,
 	}
 	root.CompletionOptions.HiddenDefaultCmd = true
 

@@ -34,6 +34,9 @@ func newCredentialsCmd() *cobra.Command {
 			if s.Guest() {
 				return fmt.Errorf("%s uses guest access and needs no password", s.ID)
 			}
+			if err := keychain.Available(); err != nil {
+				return fmt.Errorf("%w.\n  %s", err, keychainUnavailableHint())
+			}
 			if !interactive() {
 				return errors.New("a terminal is required to enter the password")
 			}

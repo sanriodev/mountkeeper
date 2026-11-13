@@ -127,6 +127,24 @@ static OSStatus mk_delete(const char *service, const char *account) {
 	return st;
 }
 
+// Reports whether the user has a usable default keychain. Checking this first
+// lets us fail with our own message instead of the system dialog "A keychain
+// cannot be found to store ...", which appears when an item is added without
+// one (e.g. in a su/sudo shell of an account that is not logged in).
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+static OSStatus mk_default_keychain(void) {
+	SecKeychainRef kc = NULL;
+	OSStatus st = SecKeychainCopyDefault(&kc);
+	if (st == errSecSuccess && kc != NULL) {
+		SecKeychainStatus status = 0;
+		st = SecKeychainGetStatus(kc, &status);
+	}
+	if (kc) CFRelease(kc);
+	return st;
+}
+#pragma clang diagnostic pop
+
 static char *mk_errstr(OSStatus st) {
 	CFStringRef msg = SecCopyErrorMessageString(st, NULL);
 	if (!msg) return NULL;
@@ -154,6 +172,11 @@ const Service = "mountkeeper"
 // ErrNotFound is returned when no password is stored for an account.
 var ErrNotFound = errors.New("no password stored in the Keychain")
 
+// ErrUnavailable is returned when the current user has no usable login
+// Keychain in this session, typically because the command runs in a su/sudo
+// shell or over SSH as an account that is not logged in at the Mac.
+var ErrUnavailable = errors.New("no login Keychain is available in this session")
+
 // ErrDenied is returned when the user declines the Keychain access prompt.
 var ErrDenied = errors.New("access to the Keychain item was denied")
 
@@ -162,13 +185,26 @@ const (
 	errSecAuthFailed     = -25293
 	errSecUserCanceled   = -128
 	errSecInteractionNot = -25308
+	errSecNoDefault      = -25307
+	errSecNoSuchKeychain = -25294
 )
+
+// Available reports whether passwords can be stored: nil, or ErrUnavailable.
+func Available() error {
+	if st := C.mk_default_keychain(); st != 0 {
+		return fmt.Errorf("%w (status %d)", ErrUnavailable, int(st))
+	}
+	return nil
+}
 
 // Set stores or replaces the password for account. description is shown in
 // Keychain Access as the item comment (e.g. the share URL, never a secret).
 func Set(account, description, password string) error {
 	if account == "" {
 		return errors.New("keychain: empty account")
+	}
+	if err := Available(); err != nil {
+		return err
 	}
 	cSvc, cAcc := C.CString(Service), C.CString(account)
 	cLbl, cCmt := C.CString("Mountkeeper: "+account), C.CString(description)
@@ -242,6 +278,8 @@ func statusErr(st C.OSStatus) error {
 		return ErrNotFound
 	case errSecAuthFailed, errSecUserCanceled, errSecInteractionNot:
 		return ErrDenied
+	case errSecNoDefault, errSecNoSuchKeychain:
+		return ErrUnavailable
 	}
 	if msg := C.mk_errstr(st); msg != nil {
 		defer C.free(unsafe.Pointer(msg))

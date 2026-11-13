@@ -100,7 +100,13 @@ the defaults instead. Passwords are never accepted in the URL or as a flag.`,
 				store := true
 				if flags.Changed("keychain") {
 					store = useKeychain
-				} else if prompt {
+				}
+				if store && keychain.Available() != nil {
+					// Do not offer something that cannot work, and do not let
+					// macOS pop up its "keychain cannot be found" dialog.
+					warn("The password cannot be stored in the Keychain; it will be asked on each connect.\n  %s", keychainUnavailableHint())
+					store = false
+				} else if !flags.Changed("keychain") && prompt {
 					if store, err = confirm("Store the password in the macOS Keychain?", true); err != nil {
 						return err
 					}

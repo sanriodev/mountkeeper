@@ -16,6 +16,9 @@ func TestRoundTrip(t *testing.T) {
 	account := fmt.Sprintf("mountkeeper-selftest-%d", os.Getpid())
 	t.Cleanup(func() { Delete(account) })
 
+	if err := Available(); err != nil {
+		t.Fatalf("Available: %v", err)
+	}
 	if Has(account) {
 		t.Fatal("test item already exists")
 	}

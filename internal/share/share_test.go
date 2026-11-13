@@ -50,12 +50,12 @@ func TestParseURLErrors(t *testing.T) {
 
 func TestSlug(t *testing.T) {
 	for in, want := range map[string]string{
-		"ematric":       "ematric",
-		"Team Share":    "team-share",
-		"  Dev/Ops!! ":  "dev-ops",
-		"Größe":         "gr-e",
-		"a__b":          "a__b",
-		"***":           "",
+		"ematric":      "ematric",
+		"Team Share":   "team-share",
+		"  Dev/Ops!! ": "dev-ops",
+		"Größe":        "gr-e",
+		"a__b":         "a__b",
+		"***":          "",
 	} {
 		if got := Slug(in); got != want {
 			t.Errorf("Slug(%q) = %q, want %q", in, got, want)

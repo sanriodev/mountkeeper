@@ -62,6 +62,9 @@ keys, press Enter to connect or disconnect, O to open a share in Finder.`,
 				before, _ := mount.StatusNow(s)
 				path, err := connectInteractive(s)
 				if err != nil {
+					if len(targets) == 1 {
+						return err
+					}
 					failed++
 					fmt.Println(errStyle.Render("✗") + " " + boldStyle.Render(s.ID) + ": " + err.Error())
 					continue

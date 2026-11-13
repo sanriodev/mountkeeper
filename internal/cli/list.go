@@ -50,7 +50,7 @@ func newListCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := [][]string{{" ", dimStyle.Render("NAME"), dimStyle.Render("URL"), dimStyle.Render("MOUNT POINT"), dimStyle.Render("AUTO")}}
+			rows := [][]string{{"  " + dimStyle.Render("NAME"), dimStyle.Render("URL"), dimStyle.Render("MOUNT POINT"), dimStyle.Render("AUTO")}}
 			for _, s := range cfg.Shares {
 				var auto []string
 				if s.AutoConnect {
@@ -62,7 +62,7 @@ func newListCmd() *cobra.Command {
 				if len(auto) == 0 {
 					auto = []string{dimStyle.Render("–")}
 				}
-				rows = append(rows, []string{dot(sts[s.ID]), boldStyle.Render(s.ID), s.URL(), s.MountPoint, strings.Join(auto, ", ")})
+				rows = append(rows, []string{dot(sts[s.ID]) + " " + boldStyle.Render(s.ID), s.URL(), s.MountPoint, strings.Join(auto, ", ")})
 			}
 			table(rows)
 			return nil
@@ -94,7 +94,7 @@ Finder or other tools are detected as well.`,
 			}
 			var rows [][]string
 			for _, s := range cfg.Shares {
-				rows = append(rows, []string{dot(sts[s.ID]), boldStyle.Render(s.ID), stateText(sts[s.ID])})
+				rows = append(rows, []string{dot(sts[s.ID]) + " " + boldStyle.Render(s.ID), stateText(sts[s.ID])})
 			}
 			table(rows)
 			return nil

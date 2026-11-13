@@ -12,7 +12,7 @@ import (
 
 func newAddCmd() *cobra.Command {
 	var (
-		name, user, domain, mountPoint string
+		name, user, domain, mountPoint  string
 		useKeychain, autoOpen, autoConn bool
 		yes                             bool
 	)

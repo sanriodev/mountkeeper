@@ -43,6 +43,8 @@ func newDisconnectCmd() *cobra.Command {
 			for _, s := range targets {
 				was, err := unmountShare(s, force)
 				switch {
+				case err != nil && len(targets) == 1:
+					return err
 				case err != nil:
 					failed++
 					fmt.Println(errStyle.Render("✗") + " " + boldStyle.Render(s.ID) + ": " + err.Error())

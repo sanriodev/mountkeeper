@@ -1,0 +1,74 @@
+name: Release
+
+# Pushing a version tag (v0.1.0) tests and builds that commit, publishes a
+# GitHub release, and points the Homebrew formula on main at the release's
+# source archive. The formula is installed from source and tested before the
+# update is pushed.
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+permissions:
+  contents: write
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: macos-latest
+    env:
+      TAG: ${{ github.ref_name }}
+      REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Test and build the tagged commit
+        run: make check
+
+      - name: Create the GitHub release
+        run: gh release create "$TAG" --repo "$REPO" --title "$TAG" --generate-notes --verify-tag
+
+      - name: Checksum the source archive
+        id: archive
+        run: |
+          url="https://github.com/$REPO/archive/refs/tags/$TAG.tar.gz"
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 3 --output source.tar.gz "$url"
+          sha="$(shasum -a 256 source.tar.gz | cut -d ' ' -f 1)"
+          rm source.tar.gz
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Update the formula on main
+        env:
+          ARCHIVE_URL: ${{ steps.archive.outputs.url }}
+          ARCHIVE_SHA: ${{ steps.archive.outputs.sha }}
+        run: |
+          git checkout main
+          git pull --ff-only origin main
+          sed -i '' -E \
+            -e "s|^  url \".*\"|  url \"$ARCHIVE_URL\"|" \
+            -e "s|^  sha256 \".*\"|  sha256 \"$ARCHIVE_SHA\"|" \
+            Formula/mountkeeper.rb
+          git diff --stat
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "formula: mountkeeper ${TAG#v}" Formula/mountkeeper.rb
+
+      - name: Validate the formula (build from source, then test)
+        run: |
+          brew style Formula/mountkeeper.rb
+          brew tap "$REPO" "$GITHUB_WORKSPACE"
+          brew install --build-from-source "$REPO/mountkeeper"
+          brew test "$REPO/mountkeeper"
+          test "$(mountkeeper --version)" = "mountkeeper version ${TAG#v}"
+
+      - name: Publish the formula update
+        run: git push origin main

@@ -162,24 +162,16 @@ Formula/             Homebrew formula (this repository is its own tap)
 
 ### Releasing
 
-The repository must be public: Homebrew downloads the release's source
-archive without authentication.
-
 Push a version tag:
 
 ```sh
 git tag v0.1.0 && git push origin v0.1.0
 ```
 
-The release workflow tests and builds the tagged commit, computes the SHA-256
-of the tag's source archive, rewrites `url` and `sha256` in
-`Formula/mountkeeper.rb`, installs that formula from source and runs
-`brew test`. Only if all of that succeeds does it publish: first the GitHub
-release, then the formula update on `main`.
-
-Every step can be repeated. If a release fails, fix the cause and run the
-workflow again for the same tag: *Actions → Release → Run workflow*, enter the
-tag. Nothing needs to be deleted first.
+The release workflow tests and builds the tagged commit, creates the GitHub
+release, computes the SHA-256 of the release's source archive, rewrites `url`
+and `sha256` in `Formula/mountkeeper.rb`, installs that formula from source,
+runs `brew test`, and only then pushes the formula update to `main`.
 
 ## License
 

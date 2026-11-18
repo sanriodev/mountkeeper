@@ -3,8 +3,8 @@ class Mountkeeper < Formula
   homepage "https://github.com/sanriodev/mountkeeper"
   # url and sha256 are rewritten by .github/workflows/release.yml on every
   # tagged release. The checksum below is a placeholder until v0.1.0 exists.
-  url "https://github.com/sanriodev/mountkeeper/archive/refs/tags/v1.2.0.tar.gz"
-  sha256 "ed28038332cb6409175d2b5eadb0bbdc4acfcada4a9585b55e1efe5dab33b31f"
+  url "https://github.com/sanriodev/mountkeeper/archive/refs/tags/v1.0.0.tar.gz"
+  sha256 "d751b64c53357892d77b51b286dd6bf3e0ed8ea3b9c9a3abf117a5ea7d193b5d"
   license "MIT"
   head "https://github.com/sanriodev/mountkeeper.git", branch: "main"
 

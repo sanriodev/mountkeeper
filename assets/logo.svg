@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="title">
+  <title id="title">Mountkeeper</title>
+  <defs>
+    <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="512" y2="512">
+      <stop offset="0" stop-color="#172554"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="peak" gradientUnits="userSpaceOnUse" x1="56" y1="136" x2="456" y2="420">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#c084fc"/>
+    </linearGradient>
+    <radialGradient id="glow" gradientUnits="userSpaceOnUse" cx="200" cy="150" r="300">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- tile -->
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="116" fill="url(#glow)"/>
+  <rect x="4" y="4" width="504" height="504" rx="112" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+
+  <g transform="translate(0,-20)">
+  <!-- small peak, behind -->
+  <polygon points="248,376 352,212 456,376" fill="url(#peak)" opacity="0.6"/>
+  <polygon points="352,212 377,252 364,246 352,258 340,246 327,252" fill="#ffffff" opacity="0.55"/>
+
+  <!-- big peak with its keyhole -->
+  <polygon points="56,376 200,136 344,376" fill="url(#peak)"/>
+  <polygon points="200,136 236,196 218,186 200,204 182,186 164,196" fill="#ffffff" opacity="0.92"/>
+  <circle cx="200" cy="282" r="24" fill="#18214f"/>
+  <polygon points="189,294 178,342 222,342 211,294" fill="#18214f"/>
+
+  <!-- the network the shares hang off -->
+  <line x1="72" y1="410" x2="440" y2="410" stroke="url(#peak)" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="136" cy="410" r="19" fill="#1a1f4e" stroke="url(#peak)" stroke-width="10"/>
+  <circle cx="256" cy="410" r="19" fill="#1a1f4e" stroke="url(#peak)" stroke-width="10"/>
+  <circle cx="376" cy="410" r="19" fill="#1a1f4e" stroke="url(#peak)" stroke-width="10"/>
+  </g>
+</svg>
